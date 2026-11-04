@@ -1,19 +1,37 @@
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Time from "./components/Time";
 import SettingsModal from "./components/SettingsModal";
-import { Settings2, Maximize2, Minimize2 } from "lucide-react";
+import { Settings2 } from "lucide-react";
 import { useFullscreenShortcut } from "./hooks/useFullscreenShortcut";
 
 export default function App() {
-  const [fontStyle, setFontStyle] = useState("font-mono");
-  const [bgTheme, setBgTheme] = useState("bg-zinc-950");
+  // 1. Initial load: Check localStorage first, fallback to defaults if not found
+  const [fontStyle, setFontStyle] = useState(() => {
+    return localStorage.getItem("zen_fontStyle") || "font-sans";
+  });
+
+  const [bgTheme, setBgTheme] = useState(() => {
+    return localStorage.getItem("zen_bgTheme") || "bg-zinc-950";
+  });
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showSettingsBtn, setShowSettingsBtn] = useState(false);
   const hideTimeoutRef = useRef(null);
 
-  // Fullscreen keyboard shortcut active
-  const isFullscreen = useFullscreenShortcut();
+  // Fullscreen hook
+  useFullscreenShortcut();
 
+  // 2. Auto-save fontStyle jab bhi user update kare
+  useEffect(() => {
+    localStorage.setItem("zen_fontStyle", fontStyle);
+  }, [fontStyle]);
+
+  // 3. Auto-save bgTheme jab bhi user update kare
+  useEffect(() => {
+    localStorage.setItem("zen_bgTheme", bgTheme);
+  }, [bgTheme]);
+
+  // Screen tap to reveal settings button
   const handleCanvasClick = () => {
     if (isModalOpen) return;
 
