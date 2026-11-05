@@ -1,84 +1,97 @@
-import { useState, useEffect, useRef } from "react";
-import Time from "./components/Time";
-import SettingsModal from "./components/SettingsModal";
-import { Settings2 } from "lucide-react";
-import { useFullscreenShortcut } from "./hooks/useFullscreenShortcut";
+import { useState, useEffect, useRef } from 'react';
+import Time from './components/Time';
+import SettingsModal from './components/SettingsModal';
+import { Settings2 } from 'lucide-react';
+
+const DEFAULT_SETTINGS = {
+  fontStyle: 'font-mono',
+  fontSize: 'text-7xl md:text-9xl',
+  showSeconds: true,
+  showBattery: true,
+  showWeather: false,
+  themeClass: 'bg-zinc-950 text-white',
+};
 
 export default function App() {
-  // 1. Initial load: Check localStorage first, fallback to defaults if not found
-  const [fontStyle, setFontStyle] = useState(() => {
-    return localStorage.getItem("zen_fontStyle") || "font-sans";
-  });
-
-  const [bgTheme, setBgTheme] = useState(() => {
-    return localStorage.getItem("zen_bgTheme") || "bg-zinc-950";
+  const [settings, setSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('zen_settings');
+      return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
+    } catch {
+      return DEFAULT_SETTINGS;
+    }
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showSettingsBtn, setShowSettingsBtn] = useState(false);
   const hideTimeoutRef = useRef(null);
 
-  // Fullscreen hook
-  useFullscreenShortcut();
-
-  // 2. Auto-save fontStyle jab bhi user update kare
+  // Auto-save changes to localStorage
   useEffect(() => {
-    localStorage.setItem("zen_fontStyle", fontStyle);
-  }, [fontStyle]);
+    localStorage.setItem('zen_settings', JSON.stringify(settings));
+  }, [settings]);
 
-  // 3. Auto-save bgTheme jab bhi user update kare
-  useEffect(() => {
-    localStorage.setItem("zen_bgTheme", bgTheme);
-  }, [bgTheme]);
+  const updateSetting = (key, value) => {
+    setSettings((prev) => ({ ...prev, [key]: value }));
+  };
 
-  // Screen tap to reveal settings button
+  // Feature 4: Double Click / Double Tap Fullscreen Toggle
+  const handleDoubleClick = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
+
+  // Reveal floating settings button on single tap
   const handleCanvasClick = () => {
     if (isModalOpen) return;
-
     setShowSettingsBtn(true);
     if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-
-    hideTimeoutRef.current = setTimeout(() => {
-      setShowSettingsBtn(false);
-    }, 4000);
+    hideTimeoutRef.current = setTimeout(() => setShowSettingsBtn(false), 4000);
   };
 
   return (
     <div
       onClick={handleCanvasClick}
-      className={`h-screen w-screen relative flex items-center justify-center transition-colors duration-700 ${bgTheme}`}
+      onDoubleClick={handleDoubleClick}
+      className={`h-screen w-screen relative flex items-center justify-center transition-all duration-700 select-none ${settings.themeClass}`}
     >
-      {/* Center Clock */}
-      <Time fontStyle={fontStyle} />
+      <Time
+        fontStyle={settings.fontStyle}
+        fontSizeClass={settings.fontSize}
+        showSeconds={settings.showSeconds}
+        showBattery={settings.showBattery}
+        showWeather={settings.showWeather}
+      />
 
-      {/* Floating Action Controls */}
+      {/* Floating Settings Button (Bottom Right) */}
       <div
-        className={`fixed bottom-8 right-8 z-40 flex items-center gap-2 transition-all duration-300 ${
+        className={`fixed bottom-8 right-8 z-40 transition-all duration-300 ${
           showSettingsBtn || isModalOpen
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-4 pointer-events-none"
+            ? 'opacity-100 translate-y-0'
+            : 'opacity-0 translate-y-4 pointer-events-none'
         }`}
       >
         <button
           onClick={(e) => {
             e.stopPropagation();
-            setIsModalOpen(true);
+            setIsModalOpen((prev) => !prev);
           }}
-          className="p-3 rounded-full border border-zinc-800 bg-zinc-900/80 text-zinc-400 shadow-xl backdrop-blur-md transition hover:text-white hover:bg-zinc-800 cursor-pointer"
+          className="p-3 rounded-full border border-zinc-800 bg-zinc-900/90 text-zinc-400 shadow-xl backdrop-blur-md transition hover:text-white hover:bg-zinc-800 cursor-pointer"
           title="Settings"
         >
           <Settings2 className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Settings Modal */}
+      {/* Bottom Right Aligned Settings Drawer */}
       <SettingsModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        fontStyle={fontStyle}
-        setFontStyle={setFontStyle}
-        bgTheme={bgTheme}
-        setBgTheme={setBgTheme}
+        settings={settings}
+        updateSetting={updateSetting}
       />
     </div>
   );
