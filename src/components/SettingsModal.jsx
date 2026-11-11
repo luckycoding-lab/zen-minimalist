@@ -1,18 +1,18 @@
-import { X, Sparkles } from 'lucide-react';
+import { X, Sparkles, BatteryCharging } from 'lucide-react';
 import { FONTS, FONT_SIZES, THEMES } from '../data/themes';
 
 export default function SettingsModal({
   isOpen,
   onClose,
   settings,
-  updateSetting
+  updateSetting,
 }) {
   if (!isOpen) return null;
 
   return (
     <aside
       onClick={(e) => e.stopPropagation()}
-      className="fixed bottom-24 right-8 z-50 w-80 max-h-[80vh] overflow-y-auto rounded-2xl border border-zinc-800/80 bg-zinc-950/95 p-5 text-zinc-200 shadow-2xl backdrop-blur-2xl space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-200"
+      className="fixed liquid-scrollbar bottom-24 right-8 z-50 w-100 max-h-[80vh] overflow-y-auto rounded-3xl border border-white/10 bg-zinc-950/40 p-5 text-zinc-100 shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] backdrop-blur-2xl backdrop-saturate-150 space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-200"
     >
       <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
         <div className="flex items-center gap-2">
@@ -21,7 +21,7 @@ export default function SettingsModal({
         </div>
         <button
           onClick={onClose}
-          className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-800 hover:text-white transition cursor-pointer"
+          className="py-2 px-3 text-xs rounded-xl border border-blue-400/50 bg-blue-500/20 text-blue-200 font-semibold shadow-[0_0_15px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.2)] transition-all cursor-pointer truncate"
         >
           <X className="w-4 h-4" />
         </button>
@@ -35,11 +35,10 @@ export default function SettingsModal({
             <button
               key={f.id}
               onClick={() => updateSetting('fontStyle', f.class)}
-              className={`py-1.5 text-xs rounded-lg border transition cursor-pointer ${
-                settings.fontStyle === f.class
-                  ? 'border-blue-500 bg-blue-500/10 text-blue-400 font-semibold'
-                  : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
-              }`}
+              className={`py-1.5 text-xs rounded-lg border transition cursor-pointer ${settings.fontStyle === f.class
+                ? 'border-blue-500 bg-blue-500/10 text-blue-400 font-semibold'
+                : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
+                }`}
             >
               {f.label}
             </button>
@@ -55,11 +54,10 @@ export default function SettingsModal({
             <button
               key={s.id}
               onClick={() => updateSetting('fontSize', s.class)}
-              className={`py-1.5 text-xs rounded-lg border transition cursor-pointer ${
-                settings.fontSize === s.class
-                  ? 'border-blue-500 bg-blue-500/10 text-blue-400 font-semibold'
-                  : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
-              }`}
+              className={`py-1.5 text-xs rounded-lg border transition cursor-pointer ${settings.fontSize === s.class
+                ? 'border-blue-500 bg-blue-500/10 text-blue-400 font-semibold'
+                : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
+                }`}
             >
               {s.label}
             </button>
@@ -80,14 +78,12 @@ export default function SettingsModal({
               <span className="text-zinc-300">{label}</span>
               <button
                 onClick={() => updateSetting(key, !settings[key])}
-                className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer ${
-                  settings[key] ? 'bg-blue-600' : 'bg-zinc-800'
-                }`}
+                className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer ${settings[key] ? 'bg-blue-600' : 'bg-zinc-800'
+                  }`}
               >
                 <span
-                  className={`block w-3.5 h-3.5 rounded-full bg-white transition-transform ${
-                    settings[key] ? 'translate-x-4.5' : 'translate-x-1'
-                  }`}
+                  className={`block w-3.5 h-3.5 rounded-full bg-white transition-transform ${settings[key] ? 'translate-x-4.5' : 'translate-x-1'
+                    }`}
                 />
               </button>
             </div>
@@ -95,23 +91,51 @@ export default function SettingsModal({
         </div>
       </div>
 
-      {/* Centralized Themes */}
-      <div className="space-y-1.5 border-t border-zinc-800/80 pt-3">
+      {/* Theme Selection Panel */}
+      <div className="space-y-2 border-t border-zinc-800/80 pt-3">
         <label className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Themes</label>
-        <div className="grid grid-cols-2 gap-1.5">
-          {THEMES.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => updateSetting('themeClass', t.class)}
-              className={`py-2 px-3 text-xs rounded-lg border text-left transition cursor-pointer truncate ${
-                settings.themeClass === t.class
-                  ? 'border-blue-500 bg-blue-500/10 text-blue-400 font-semibold'
-                  : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
+
+        {/* 1. Dynamic Battery Reactive Button */}
+        <button
+          type="button"
+          onClick={() => {
+            updateSetting('themeType', 'battery');
+          }}
+          className={`w-full py-2.5 px-3 text-xs rounded-xl border flex items-center justify-between transition cursor-pointer ${settings?.themeType === 'battery'
+              ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400 font-semibold shadow-sm'
+              : 'border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white'
+            }`}
+        >
+          <div className="flex items-center gap-2">
+            <BatteryCharging className="w-4 h-4 text-emerald-400" />
+            <span>Battery Reactive Mode</span>
+          </div>
+          <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
+            Auto
+          </span>
+        </button>
+
+        {/* 2. Static / Custom Color Themes */}
+        <div className="grid grid-cols-2 gap-1.5 pt-1">
+          {THEMES.map((t) => {
+            const isSelected = settings?.themeClass === t.class && settings?.themeType === 'custom';
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => {
+                  updateSetting('themeClass', t.class);
+                  updateSetting('themeType', 'custom');
+                }}
+                className={`py-2 px-3 text-xs rounded-lg border text-left transition cursor-pointer truncate ${isSelected
+                    ? 'border-blue-500 bg-blue-500/10 text-blue-400 font-semibold'
+                    : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
+                  }`}
+              >
+                {t.label}
+              </button>
+            );
+          })}
         </div>
       </div>
     </aside>

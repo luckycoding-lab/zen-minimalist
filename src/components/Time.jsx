@@ -1,12 +1,15 @@
-import { Battery, CloudSun } from 'lucide-react';
+import { Battery, BatteryCharging, CloudSun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-export default function Time({ 
-  fontStyle = 'font-sans', 
+export default function Time({
+  fontStyle = 'font-mono',
   fontSizeClass = 'text-7xl md:text-9xl',
   showSeconds = true,
   showBattery = true,
-  showWeather = false }) {
+  showWeather = true,
+  batteryData,
+  weatherData,
+}) {
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -26,30 +29,34 @@ export default function Time({
     month: 'short',
     day: 'numeric',
   });
-
   return (
     <div className={`flex flex-col items-center select-none ${fontStyle}`}>
-      {/* Top Meta Bar: Date, Battery, Weather */}
-      <div className="flex items-center gap-4 text-xs uppercase tracking-widest text-zinc-400 mb-3 font-mono">
+      {/* 2. Top Meta Bar: Date -> Battery -> Live Weather */}
+      <div className="flex items-center gap-3 text-xs tracking-widest text-zinc-400 mb-3 font-mono">
         <span>{formattedDate}</span>
-        
+
         {showBattery && (
-          <div className="flex items-center gap-1.5 border-l border-zinc-800 pl-4">
-            <Battery className="w-3.5 h-3.5 text-emerald-400" />
-            <span>85%</span>
+          <div className="flex items-center gap-1.5 border-l border-zinc-800/80 pl-3">
+            {batteryData.charging ? (
+              <BatteryCharging className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+            ) : (
+              <Battery className="w-3.5 h-3.5 text-zinc-400" />
+            )}
+            <span>{batteryData.level}%</span>
           </div>
         )}
 
         {showWeather && (
-          <div className="flex items-center gap-1.5 border-l border-zinc-800 pl-4">
+          <div className="flex items-center gap-1.5 border-l border-zinc-800/80 pl-3">
             <CloudSun className="w-3.5 h-3.5 text-amber-300" />
-            <span>24°C</span>
+            <span>{weatherData.temp}</span>
           </div>
         )}
       </div>
 
-      {/* Main Clock: tabular-nums eliminates character width jumps */}
-      <h1 className={`${fontSizeClass} font-light tracking-tight tabular-nums select-none leading-none drop-shadow-sm`}>
+
+      {/* 3. Tabular Clock */}
+      <h1 className={`${fontSizeClass} font-light tracking-tight tabular-nums select-none leading-none drop-shadow-md`}>
         {formattedTime}
       </h1>
     </div>
