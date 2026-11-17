@@ -1,19 +1,27 @@
 import { useEffect, useState } from "react";
 
 export function useFullscreenShortcut() {
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(
+    Boolean(document.fullscreenElement)
+  );
 
   useEffect(() => {
-    // 1. Keyboard event listener for 'f' / 'F' key
     const handleKeyDown = (event) => {
-      // Agar user kisi input field me type kar raha hai to fullscreen trigger na ho
+      // Ignore if typing in an input, textarea, or select
       const activeTag = document.activeElement?.tagName.toLowerCase();
-      if (activeTag === "input" || activeTag === "textarea") {
+      if (
+        activeTag === "input" ||
+        activeTag === "textarea" ||
+        activeTag === "select" ||
+        document.activeElement?.isContentEditable
+      ) {
         return;
       }
 
-      // 'f' ya 'F' press hone par toggle karein
-      if (event.key === "f" || event.key === "F") {
+      // Ignore Ctrl+F / Cmd+F (browser find)
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+
+      if (event.key === "f" || event.key === "F" || event.code === "KeyF") {
         event.preventDefault();
 
         if (!document.fullscreenElement) {
@@ -28,7 +36,6 @@ export function useFullscreenShortcut() {
       }
     };
 
-    // 2. Browser ke native fullscreen state change ko track karein (e.g. jab user Escape dabaye)
     const handleFullscreenChange = () => {
       setIsFullscreen(Boolean(document.fullscreenElement));
     };

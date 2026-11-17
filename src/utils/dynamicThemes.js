@@ -1,36 +1,40 @@
 // 1. Day-Shift (Dawn, Noon Sun, Sunset Dusk, Night Moon)
-export function getDayShiftTheme(date = new Date()) {
+export function getCircadianTheme(date = new Date()) {
   const hour = date.getHours();
 
+  // Dawn / Early Morning (5 AM - 8 AM)
   if (hour >= 5 && hour < 8) {
-    // Dawn / Sunrise (Soft peach & warm gold)
     return {
-      bg: 'bg-gradient-to-tr from-amber-700 via-rose-900 to-indigo-950',
-      text: 'text-amber-100',
-      label: 'Dawn Rise 🌅',
-    };
-  } else if (hour >= 8 && hour < 17) {
-    // Day / Bright Sun (Clean, high clarity minimal azure)
-    return {
-      bg: 'bg-gradient-to-b from-sky-900 via-slate-900 to-zinc-950',
-      text: 'text-sky-50',
-      label: 'Bright Sun ☀️',
-    };
-  } else if (hour >= 17 && hour < 20) {
-    // Sunset / Dusk (Deep purple, burnt orange)
-    return {
-      bg: 'bg-gradient-to-tr from-orange-950 via-purple-950 to-zinc-950',
-      text: 'text-orange-100',
-      label: 'Golden Sunset 🌇',
-    };
-  } else {
-    // Night / Moon (Deep Obsidian & Starry midnight)
-    return {
-      bg: 'bg-gradient-to-b from-zinc-950 via-black to-slate-950',
-      text: 'text-zinc-200',
-      label: 'Midnight Moon 🌙',
+      label: "Dawn",
+      bg: "bg-gradient-to-br from-slate-950 via-amber-950/60 to-orange-950/40 text-amber-50",
     };
   }
+  // Morning / Daylight (8 AM - 4 PM)
+  if (hour >= 8 && hour < 16) {
+    return {
+      label: "Daylight",
+      bg: "bg-gradient-to-br from-slate-900 via-sky-950/70 to-zinc-950 text-sky-50",
+    };
+  }
+  // Golden Hour / Sunset (4 PM - 7 PM)
+  if (hour >= 16 && hour < 19) {
+    return {
+      label: "Sunset",
+      bg: "bg-gradient-to-br from-zinc-950 via-rose-950/60 to-indigo-950/50 text-rose-50",
+    };
+  }
+  // Evening / Dusk (7 PM - 10 PM)
+  if (hour >= 19 && hour < 22) {
+    return {
+      label: "Dusk",
+      bg: "bg-gradient-to-br from-zinc-950 via-indigo-950/60 to-slate-950 text-indigo-50",
+    };
+  }
+  // Midnight / Deep Night (10 PM - 5 AM)
+  return {
+    label: "Midnight",
+    bg: "bg-zinc-950 text-zinc-100",
+  };
 }
 
 // 2. Battery Reactive Theme
